@@ -1,0 +1,104 @@
+    import groovy.json.JsonOutput
+    import groovy.json.JsonSlurper
+    import javax.net.ssl.HostnameVerifier
+    import javax.net.ssl.HttpsURLConnection
+    import javax.net.ssl.SSLContext
+    import javax.net.ssl.TrustManager
+    import javax.net.ssl.X509TrustManager
+    import java.security.SecureRandom
+    import java.net.URLEncoder
+
+    pipeline {
+        agent any
+        stages {
+          stage ('Start with Groovy') {
+              steps {
+                print 'promotionCheck'
+              }
+          }
+          stage('Create Service with Groovy') {
+            steps {
+              println('Groovy out ' + params.THREESCALE_URL);
+              //create3scaleService(params.THREESCALE_URL,params.API_TOKEN,"https://raw.githubusercontent.com/redhatHameed/fuse-financial-cicd/master/openapi-spec.json", "3scalefuse")
+                startUpGet(params.THREESCALE_URL,params.API_TOKEN)
+            }
+          }
+        }
+    }
+    def create3scaleService(
+        String adminBaseUrl,
+        String token,
+        String backendServiceSwaggerEndpoint,
+        String serviceSystemName) {
+
+        def jsonSlurper = new JsonSlurper()
+        println('Fetching service swagger json...')
+        def swaggerDoc = jsonSlurper.parseText(new URL(backendServiceSwaggerEndpoint).getText())
+
+        println('Creating Service...')
+        def activeDocSpecCreateUrl = "${adminBaseUrl}/admin/api/services.json"
+        def name = swaggerDoc.info.title != null ? swaggerDoc.info.title : serviceSystemName
+        def data = "access_token=${token}&name=${name}&system_name=${serviceSystemName}"
+        println('Data...'+data)
+        println('CreateUrl...'+activeDocSpecCreateUrl);
+        
+        //testRestCall()
+        makeRequestwithBody(activeDocSpecCreateUrl, data, 'POST')
+    }
+
+    def startUpGet(
+        String adminBaseUrl,
+        String token) {
+        
+        def slurper = new JsonSlurper()
+        def apiStr = "${adminBaseUrl}/admin/api/services.json?access_token=${token}"
+        println(" api call ${apiStr}");
+        def httpConnection = new URL(apiStr).openConnection()
+
+        assert httpConnection.responseCode == httpConnection.HTTP_OK
+        slurper.parse(httpConnection.inputStream.newReader())
+        println(" ----------------- ")
+    }
+
+    def testRestCall() {
+        println new URL( "https://query.yahooapis.com/v1/public/yql?q=" +
+                URLEncoder.encode(
+                        "select wind from weather.forecast where woeid in " +
+                                "(select woeid from geo.places(1) where text='chicago, il')",
+                        'UTF-8' ) ).text
+    }
+
+    def create3scaleService_test(
+            String adminBaseUrl,
+            String token,
+            String backendServiceSwaggerEndpoint,
+            String serviceSystemName) {
+        //def jsonSlurper = new JsonSlurper()
+        println('Fetching service swagger json...')
+      
+        println("Creating Service... "+ backendServiceSwaggerEndpoint)
+        def activeDocSpecCreateUrl = "${adminBaseUrl}/admin/api/services.json"
+        def name = "name here"
+        def data = "access_token=${token}&name=${name}&system_name=${serviceSystemName}"
+      
+        println('Data...'+data)
+        println('CreateUrl...'+activeDocSpecCreateUrl);
+
+
+    }
+
+    def makeRequestwithBody(url, body, method) {
+        def post = new URL(url).openConnection();
+        post.setRequestMethod(method)
+        post.setDoOutput(true)
+        post.setRequestProperty('Content-Type', 'application/x-www-form-urlencoded')
+        post.setRequestProperty('Accept', 'application/json')
+        post.getOutputStream().write(body.getBytes('UTF-8'))
+        def responseCode = post.getResponseCode();
+        if (responseCode != 200 && responseCode != 201) {
+            println('Failed to update/create . HTTP response: ' + responseCode)
+            assert false
+        } else {
+            println('updated/created successfully!')
+        }
+    }

@@ -8,42 +8,41 @@ metadata:
   name: pipeline
 parameters:
 - name: GIT_REPO
-  value: https://github.com/RHsyseng/IntegrationApp-Automation.git
-  required: true
+  value: https://github.com/myeung18/IntegrationApp-Automation.git
+  required: false
 - name: GIT_BRANCH
-  value: master
-  required: true
-- name: DEV_PROJECT 
-  required: true 
-- name: TEST_PROJECT 
-  required: true
-- name: PROD_PROJECT 
-  required: true
+  value: 3scalepublish 
+  required: false
 - name: MYSQL_USER 
   value: dbuser 
   required: false
 - name: MYSQL_PWD
   value: password 
   required: false
-- name: IMAGE_REGISTRY
-  value: docker-registry.default.svc:5000
+- name: API_TOKEN
+  displayName: Access token from 3scale 
   required: true
-- name: IMAGE_NAMESPACE 
+  value: a96c1296376a4901d90d69405265843b888b12649e827052fe67dcdb899c4c61
+  description: Access token from 3scale for calling management API
+- name: THREESCALE_URL
+  displayName: Admin URL of Threescale
   required: true
+  value: https://3scale-admin.app.rhdp.ocp.cloud.lab.eng.bos.redhat.com
+  description: Admin URL of Threescale
 objects:
 - apiVersion: v1
   kind: BuildConfig
   metadata:
-    name: aggregated-pipeline
+    name: 3scale-publishing-pipeline
     labels:
-      app: aggregated-pipeline
+      app: 3scale-publishing-pipeline
   spec:
     output: null
     postCommit: null
     resources: null
     runPolicy: Serial
     source:
-      type: None 
+      type: Git 
     source:
       git:
         uri: ${GIT_REPO}
@@ -51,23 +50,17 @@ objects:
     strategy:
       type: JenkinsPipeline
       jenkinsPipelineStrategy:
-        jenkinsfilePath: Jenkinsfile
+        jenkinsfilePath: Jenkinsfile3scale
         env:
         - name: GIT_BRANCH
           value: ${GIT_BRANCH}
         - name: GIT_REPO
           value: ${GIT_REPO}
-        - name: DEV_PROJECT 
-          value: ${DEV_PROJECT}
-        - name: TEST_PROJECT 
-          value: ${TEST_PROJECT}
-        - name: PROD_PROJECT 
-          value: ${PROD_PROJECT}
         - name: MYSQL_USER 
           value: ${MYSQL_USER}
         - name: MYSQL_PWD 
           value: ${MYSQL_PWD}
-        - name: IMAGE_NAMESPACE 
-          value: ${IMAGE_NAMESPACE}
-        - name: IMAGE_REGISTRY 
-          value: ${IMAGE_REGISTRY}
+        - name: API_TOKEN
+          value: ${API_TOKEN}
+        - name: THREESCALE_URL
+          value: ${THREESCALE_URL}

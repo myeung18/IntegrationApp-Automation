@@ -1,0 +1,170 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+    template: pipeline
+metadata:
+  annotations:
+    description: RHTE CICD Deployment Pipeline
+  name: pipeline
+parameters:
+- name: GIT_REPO
+  value: https://github.com/RHsyseng/IntegrationApp-Automation.git
+  required: true
+- name: GIT_BRANCH
+  value: master
+  required: true
+- name: MYSQL_USER 
+  value: dbuser 
+  required: false
+- name: MYSQL_PWD
+  value: password 
+  required: false
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: 3scale-pub-pipeline
+    labels:
+      app: 3scale-pub-pipeline
+  spec:
+    output: null
+    postCommit: null
+    resources: null
+    runPolicy: Serial
+    source:
+      type: None 
+    source:
+      git:
+        uri: ${GIT_REPO}
+        ref: ${GIT_BRANCH}
+    strategy:
+      type: JenkinsPipeline
+      jenkinsPipelineStrategy:
+        jenkinsfile: |-
+
+            import groovy.json.JsonOutput
+            import groovy.json.JsonSlurper
+            import javax.net.ssl.HostnameVerifier
+            import javax.net.ssl.HttpsURLConnection
+            import javax.net.ssl.SSLContext
+            import javax.net.ssl.TrustManager
+            import javax.net.ssl.X509TrustManager
+            import java.security.SecureRandom
+            import java.net.URLEncoder
+
+            pipeline {
+                agent any
+                parameters{ 
+                    string (defaultValue: 'https://3scale-admin.app.rhdp.ocp.cloud.lab.eng.bos.redhat.com', name:'THREESCALE_URL', description:'open shift cluster url')
+                    string (defaultValue: 'a96c1296376a4901d90d69405265843b888b12649e827052fe67dcdb899c4c61', name:'API_TOKEN', description:'open shift token')
+                }
+
+                stages {
+                  stage ('Start with Groovy') {
+                      steps {
+                        print 'promotionCheck'
+                      }
+                  }
+                  stage('Create Service with Groovy') {
+                    steps {
+                      println('Groovy out TEST FOR 3SCALE PUBLISHING' + params.THREESCALE_URL)
+                     // startUpGet(params.THREESCALE_URL, params.API_TOKEN)
+                      createSvc(params.THREESCALE_URL, params.API_TOKEN, "anyname", "anysysname")
+                    }
+                  }
+                }
+            }
+
+            def createSvc(String adminBaseUrl, String token,  String name, String serviceSystemName) {
+                def activeDocSpecCreateUrl = "${adminBaseUrl}/admin/api/services.json"
+                def data = "access_token=${token}&name=${name}&system_name=${serviceSystemName}"
+              
+                
+                makeRequestwithBody(activeDocSpecCreateUrl, data, 'POST')
+            }
+            def startUpGet(
+                String adminBaseUrl,
+                String token) {
+                
+                def slurper = new JsonSlurper()
+                def apiStr = "${adminBaseUrl}/admin/api/services.json?access_token=${token}"
+                println(" api call ${apiStr}");
+                def httpConnection = new URL(apiStr).openConnection()
+
+                assert httpConnection.responseCode == httpConnection.HTTP_OK
+                slurper.parse(httpConnection.inputStream.newReader())
+                println(" ----------------- ")
+            }
+
+            def create3scaleService(
+                String adminBaseUrl,
+                String token,
+                String backendServiceSwaggerEndpoint,
+                String serviceSystemName) {
+
+                def jsonSlurper = new JsonSlurper()
+                println('Fetching service swagger json...')
+                def swaggerDoc = jsonSlurper.parseText(new URL(backendServiceSwaggerEndpoint).getText())
+
+                println('Creating Service...')
+                def activeDocSpecCreateUrl = "${adminBaseUrl}/admin/api/services.json"
+                def name = swaggerDoc.info.title != null ? swaggerDoc.info.title : serviceSystemName
+                def data = "access_token=${token}&name=${name}&system_name=${serviceSystemName}"
+                println('Data...'+data)
+                println('CreateUrl...'+activeDocSpecCreateUrl);
+                
+                testRestCall()
+                //makeRequestwithBody(activeDocSpecCreateUrl, data, 'POST')
+            }
+            def testRestCall() {
+                println new URL( "https://query.yahooapis.com/v1/public/yql?q=" +
+                        URLEncoder.encode(
+                                "select wind from weather.forecast where woeid in " +
+                                        "(select woeid from geo.places(1) where text='chicago, il')",
+                                'UTF-8' ) ).text
+            }
+
+            def create3scaleService_test(
+                    String adminBaseUrl,
+                    String token,
+                    String backendServiceSwaggerEndpoint,
+                    String serviceSystemName) {
+                //def jsonSlurper = new JsonSlurper()
+                println('Fetching service swagger json...')
+              
+                println("Creating Service... "+ backendServiceSwaggerEndpoint)
+                def activeDocSpecCreateUrl = "${adminBaseUrl}/admin/api/services.json"
+                def name = "name here"
+                def data = "access_token=${token}&name=${name}&system_name=${serviceSystemName}"
+              
+                println('Data...'+data)
+                println('CreateUrl...'+activeDocSpecCreateUrl);
+
+
+            }
+
+            def makeRequestwithBody(url, body, method) {
+                def post = new URL(url).openConnection();
+                post.setRequestMethod(method)
+                post.setDoOutput(true)
+                post.setRequestProperty('Content-Type', 'application/x-www-form-urlencoded')
+                post.setRequestProperty('Accept', 'application/json')
+                post.getOutputStream().write(body.getBytes('UTF-8'))
+                def responseCode = post.getResponseCode();
+                if (responseCode != 200 && responseCode != 201) {
+                    println('Failed to update/create . HTTP response: ' + responseCode)
+                    assert false
+                } else {
+                    println('updated/created successfully!')
+                }
+            }
+
+        env:
+        - name: GIT_BRANCH
+          value: ${GIT_BRANCH}
+        - name: GIT_REPO
+          value: ${GIT_REPO}
+        - name: MYSQL_USER 
+          value: ${MYSQL_USER}
+        - name: MYSQL_PWD 
+          value: ${MYSQL_PWD}
