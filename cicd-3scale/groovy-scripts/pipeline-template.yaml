@@ -52,19 +52,19 @@ objects:
        
 parameters:
 - name: GIT_REPO
-  value: https://github.com/RHsyseng/IntegrationApp-Automation.git
+  value: https://github.com/myeung18/IntegrationApp-Automation.git
   required: true
 - name: GIT_BRANCH
-  value: master
+  value: cicdtest
   required: true
 - name: API_BACK_END
-  value: http://maingateway-service-ah-dev2.app.rhdp.ocp.cloud.lab.eng.bos.redhat.com
+  value: http://maingateway-service-rh-dev.app.rhdp.ocp.cloud.lab.eng.bos.redhat.com
   required: true
 - name: END_POINT
-  value: https://fusecicd-apicast-staging.app.rhdp.ocp.cloud.lab.eng.bos.redhat.com
+  value: https://mss-3scale-prod-1-staging.rhdp.ocp.cloud.lab.eng.bos.redhat.com
   required: true
 - name: SANDBOX_END_POINT
-  value: https://fusecicd-apicast-staging.app.rhdp.ocp.cloud.lab.eng.bos.redhat.com
+  value: https://mss-3scale-prod-1-staging.rhdp.ocp.cloud.lab.eng.bos.redhat.com
   required: true
 - name: SWAGGER_FILE_NAME
   displayName: SWAGGER_FILE_NAME
@@ -77,12 +77,12 @@ parameters:
 - name: THREESCALE_URL
   displayName: Admin URL of Threescale
   required: true
-  value: https://ah-3scale-ansible-admin.app.rhdp.ocp.cloud.lab.eng.bos.redhat.com
+  value: https://mss-3scale-admin.app.rhdp.ocp.cloud.lab.eng.bos.redhat.com
   description: Admin URL of Threescale
 - name: API_TOKEN
   displayName: Access token from 3scale 
   required: true
-  value: 4a2a1ce5f6a7c5f6a67234d84f647f68b690e4931429d93c65e2bdf63a6a406f
+  value: cd3cd38a75b686e238ccbe8ef828a2e507d87bbaae72726ef414366a3322ad57
   description: Access token from 3scale for calling management API
 
 
