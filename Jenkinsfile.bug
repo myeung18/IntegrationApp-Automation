@@ -1,10 +1,9 @@
 pipeline {
-    /*agent {
+    agent {
         node {
             label 'maven'
         }
-    }*/
-    agent any
+    }
     parameters{ 
         string (defaultValue: 'notinuse', name:'OPENSHIFT_HOST', description:'open shift cluster url')
         string (defaultValue: 'notinuse', name:'OPENSHIFT_TOKEN', description:'open shift token')
@@ -61,10 +60,10 @@ pipeline {
             }
             steps {
                 echo "Building.. ${serviceName} "
-                //build(env.serviceName)
+                build(env.serviceName)
 
                 echo "Deploying ${serviceName} to ${DEV_PROJECT}"
-                //deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
+                deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
 
             }
         }
@@ -79,10 +78,10 @@ pipeline {
             }
             steps {
                 echo "Building.. ${serviceName} "
-                //build(env.serviceName)
+                build(env.serviceName)
 
                 echo "Deploying ${serviceName} to ${DEV_PROJECT}"
-                //deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
+                deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
            }
         }
         stage('Build fisalert-service') {
@@ -96,10 +95,10 @@ pipeline {
             }
             steps {
                 echo "Building.. ${serviceName} "
-                //build(env.serviceName)
+                build(env.serviceName)
 
                 echo "Deploying ${serviceName} to ${DEV_PROJECT}"
-                //deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
+                deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
             }
         }
         stage('Build nodejsalert-ui') {
@@ -113,7 +112,7 @@ pipeline {
             }
             steps {
                 echo "Building.. ${serviceName}"
-               /* node ('nodejs') {
+                node ('nodejs') {
                     git url: params.GIT_REPO, branch: params.GIT_BRANCH                
  
                     script {
@@ -125,7 +124,7 @@ pipeline {
                         npm install && npm run openshift
                         """
                     }
-                } */ 
+                } 
             }
         }
 
@@ -195,7 +194,7 @@ stage('Smoke Test') {
                }
            }
             steps {
-                echo "Deploy to fisuser ${TEST_PROJECT} "
+                echo "Deploy to ${TEST_PROJECT} "
                 promoteServiceSetup(params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, 'fisuser-service',params.IMAGE_REGISTRY, params.IMAGE_NAMESPACE, env.destTag, params.TEST_PROJECT)    
                 setEnvForDBModule(params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, 'fisuser-service', params.TEST_PROJECT,  params.MYSQL_USER, params.MYSQL_PWD)
                 promoteService(params.IMAGE_NAMESPACE, params.TEST_PROJECT, 'fisuser-service', env.srcTag, env.destTag)
@@ -323,14 +322,13 @@ stage('Smoke Test') {
     }
 }
 def setEnvForDBModule(openShiftHost, openShiftToken, svcName, projName, mysqlUser, mysqlPwd) {
-    try {   
-    echo "set EnvFor $svcName ${mysqlUser} : ${mysqlPwd}"
+    try {
     sh """ 
-        oc set env dc ${svcName} MYSQL_SERVICE_NAME=mysql -n ${projName} 2> /dev/null
-        oc set env dc ${svcName} MYSQL_SERVICE_USERNAME=${mysqlUser} -n ${projName} 2> /dev/null
-        oc set env dc ${svcName} MYSQL_SERVICE_PASSWORD=${mysqlPwd} -n ${projName} 2> /dev/null
-        oc set env dc ${svcName} JAVA_APP_DIR=/deployments -n ${projName} 2> /dev/null
-        oc rollout cancel dc ${svcName} -n ${projName} -n ${projName} 2> /dev/null
+        oc env dc ${svcName} MYSQL_SERVICE_NAME=mysql -n ${projName} 2> /dev/null
+        oc env dc ${svcName} MYSQL_SERVICE_USERNAME=${mysqlUser} -n ${projName} 2> /dev/null
+        oc env dc ${svcName} MYSQL_SERVICE_PASSWORD=${mysqlPwd} -n ${projName} 2> /dev/null
+        oc env dc ${svcName} JAVA_APP_DIR=/deployments -n ${projName} 2> /dev/null
+        oc deploy ${svcName} --cancel -n ${projName} -n ${projName} 2> /dev/null
 
     """
     } catch (Exception e) {
@@ -348,8 +346,8 @@ def promoteServiceSetup(openShiftHost, openShiftToken, svcName,registry,imageNam
     try {
         sh """ 
             oc create dc ${svcName} --image=${registry}/${imageNameSpace}/${svcName}:${tagName} -n ${projName} 2> /dev/null     
-            oc set env dc ${svcName} APP_NAME=${svcName} -n ${projName} 2> /dev/null 
-            oc rollout cancel dc ${svcName} -n ${projName} 2> /dev/null 
+            oc env dc ${svcName} APP_NAME=${svcName} -n ${projName} 2> /dev/null 
+            oc deploy ${svcName} --cancel -n ${projName} 2> /dev/null 
             oc expose dc ${svcName} --port=8080 -n ${projName} 2> /dev/null 
             oc expose svc ${svcName} --name=${svcName} -n ${projName} 2> /dev/null 
         """
