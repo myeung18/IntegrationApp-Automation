@@ -136,7 +136,7 @@ pipeline {
         stage('Smoke Test') {
             when {
                 expression {
-                    params.SELECT_DEPLOY_TO_PROD == false 
+                    params.SELECT_DEPLOY_TO_PROD == true 
                 }
             }
             steps {
@@ -392,11 +392,18 @@ def promoteServiceSetup(openShiftHost, openShiftToken, svcName,registry,imageNam
         echo "skip dc/svc/route cleanup related exception, the resource may not exist. " + e.getMessage();
     }
     try {
+        sh """
+            oc delete svc ${svcName} -n ${projName} 2> /dev/null
+        """
+    } catch (Exception e) {
+        echo "skip svc cleanup related exception, the resource may not exist. " + e.getMessage();
+    }
+    try {
         sh """ 
             oc create dc ${svcName} --image=${registry}/${imageNameSpace}/${svcName}:${tagName} -n ${projName} 2> /dev/null     
             oc set env dc ${svcName} APP_NAME=${svcName} -n ${projName} 2> /dev/null 
             oc rollout cancel dc ${svcName} -n ${projName} 2> /dev/null 
-            oc expose dc ${svcName} --port=8080 -n ${projName} 2> /dev/null 
+            oc expose dc ${svcName} --type=ClusterIP  --port=80 --protocol=TCP --target-port=8080 -n ${projName} 2> /dev/null
             oc expose svc ${svcName} --name=${svcName} -n ${projName} 2> /dev/null 
         """
     } catch (Exception e) {

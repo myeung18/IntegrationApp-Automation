@@ -8,10 +8,10 @@ metadata:
   name: pipeline
 parameters:
 - name: GIT_REPO
-  value: https://github.com/RHsyseng/IntegrationApp-Automation.git
+  value: https://github.com/myeung18/IntegrationApp-Automation.git
   required: true
 - name: GIT_BRANCH
-  value: master
+  value: imagetaggingbugfix
   required: true
 - name: DEV_PROJECT 
   required: true 
