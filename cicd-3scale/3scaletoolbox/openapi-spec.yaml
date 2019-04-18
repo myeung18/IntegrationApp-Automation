@@ -1,12 +1,12 @@
 ---
 swagger: "2.0"
 info:
-  title: Fuse-Useralert-API
+  title: Fuse_Useralert_API
   version: 1.0.0
 host: 0.0.0.0
 basePath: /cicd
 schemes:
-- http
+- https
 paths:
   /maingateway/profile/{acctid}:
     get:
