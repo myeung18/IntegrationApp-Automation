@@ -8,10 +8,10 @@ metadata:
   name: pipeline
 parameters:
 - name: GIT_REPO
-  value: https://github.com/rh-integration/IntegrationApp-Automation
+  value: https://github.com/myeung18/IntegrationApp-Automation
   required: true
 - name: GIT_BRANCH
-  value: master
+  value: ocp4test
   required: true
 - name: DEV_PROJECT 
   required: true 
@@ -26,7 +26,7 @@ parameters:
   value: password 
   required: false
 - name: IMAGE_REGISTRY
-  value: docker-registry.default.svc:5000
+  value: image-registry.openshift-image-registry.svc:5000
   required: true
 - name: IMAGE_NAMESPACE 
   required: true
@@ -50,7 +50,7 @@ parameters:
   value: 3scale-toolbox
   required: true
 - name: TARGET_INSTANCE
-  value: instance_a
+  value: lab_3scale
   required: true
 - name: DEVELOPER_ACCOUNT_ID
   value: Developer
@@ -60,7 +60,7 @@ parameters:
 - name: PLAN_YAML_FILE_PATH
   value: https://raw.githubusercontent.com/rh-integration/IntegrationApp-Automation/master/cicd-3scale/3scaletoolbox/plan.yaml
 - name: TOOLBOX_IMAGE_REGISTRY
-  value: docker-registry.default.svc:5000/rh-dev/toolbox:v0.12.4
+  value: image-registry.openshift-image-registry.svc:5000/ms-dev/toolbox:v0.12.4
 
 objects:
 - apiVersion: v1

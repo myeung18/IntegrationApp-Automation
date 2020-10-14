@@ -26,7 +26,7 @@ var con = mysql.createConnection({
 
 con.connect(function(err) {
     if (err) {
-        console.log('connecting error');
+        console.log('connecting error', err);
         return;
     }
     console.log('connecting success');

@@ -54,6 +54,7 @@ pipeline {
                         serviceName = 'maingateway-service:8080'
                         smokeTestOperation = 'cicd/maingateway/profile/11111?alertType=ACCIDENT'
                         makeGetRequest("http://${serviceName}/${smokeTestOperation}")
+                        sleep 60
                     }
                 }
             }

@@ -21,8 +21,8 @@ pipeline {
         string(defaultValue: 'rh-dev', name: 'DEV_PROJECT', description: 'build or development project')
         string(defaultValue: 'rh-test', name: 'TEST_PROJECT', description: 'Test project')
         string(defaultValue: 'rh-prod', name: 'PROD_PROJECT', description: 'Production project')
-        string(defaultValue: 'https://github.com/rh-integration/IntegrationApp-Automation.git', name: 'GIT_REPO', description: 'Git source')
-        string(defaultValue: 'master', name: 'GIT_BRANCH', description: 'Git branch in the source git')
+        string(defaultValue: 'https://github.com/myeung18/IntegrationApp-Automation.git', name: 'GIT_REPO', description: 'Git source')
+        string(defaultValue: 'ocp4test', name: 'GIT_BRANCH', description: 'Git branch in the source git')
         string(defaultValue: 'dbuser', name: 'MYSQL_USER', description: 'My Sql user name')
         string(defaultValue: 'password', name: 'MYSQL_PWD', description: 'My Sql user password')
         booleanParam(defaultValue: false, name: 'SELECT_BUILD_MODULE', description: 'Select module to build (default: build all to dev and test)')
@@ -69,11 +69,11 @@ pipeline {
                 }
             }
             steps {
-                echo "Building.. ${serviceName} "
-                build(env.serviceName)
+                echo "No --------------------------------------------------------------------------------- Building.. ${serviceName} "
+                //build(env.serviceName)
 
                 echo "Deploying ${serviceName} to ${DEV_PROJECT}"
-                deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
+                //deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
 
             }
         }
@@ -89,10 +89,10 @@ pipeline {
             }
             steps {
                 echo "Building.. ${serviceName} "
-                build(env.serviceName)
+                //build(env.serviceName)
 
                 echo "Deploying ${serviceName} to ${DEV_PROJECT}"
-                deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
+                //deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
             }
         }
         stage('Build fuse-alert-service') {
@@ -107,10 +107,10 @@ pipeline {
             }
             steps {
                 echo "Building.. ${serviceName} "
-                build(env.serviceName)
+                // build(env.serviceName)
 
                 echo "Deploying ${serviceName} to ${DEV_PROJECT}"
-                deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
+                // deploy(env.serviceName, params.DEV_PROJECT, params.OPENSHIFT_HOST, params.OPENSHIFT_TOKEN, params.MYSQL_USER, params.MYSQL_PWD)
             }
         }
         stage('Build nodejsalert-ui') {
@@ -132,6 +132,7 @@ pipeline {
 
 
                     def templatePath = 'nodejsalert-ui/resources/nodejs.json'
+/**
                     openshift.withCluster() {
                         openshift.withProject() {
 
@@ -173,8 +174,8 @@ pipeline {
                             }
                         }
                     }
+*/
                 }
-
             }
         }
         stage('Dev-Env smoke-test') {
@@ -187,7 +188,7 @@ pipeline {
                 script {
 
                     echo "Waiting for deployment to complete prior starting smoke testing"
-                    sleep 120
+                    sleep 1
 
                     retry(5) {
 
@@ -685,7 +686,7 @@ def deploy(folderName, projName, openShiftHost, openShiftToken, mysqlUser, mysql
 
 def makePostRequest(url, body, method) {
 
-    sh """set -e +x
+    sh """set -e -x
 
     curl -X POST   ${url} \
     -H 'cache-control: no-cache' \
@@ -700,7 +701,7 @@ def makePostRequest(url, body, method) {
 def makeGetRequest(url) {
 
 
-    sh """set -e +x
+    sh """set -e -x
                           curl -k -f -w "SmokeTest: %{http_code}\n" -o /dev/null -s ${url}
     """
 }

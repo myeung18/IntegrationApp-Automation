@@ -65,15 +65,12 @@ objects:
           value: ${PLAN_YAML_FILE_PATH}
         - name: TOOLBOX_IMAGE_REGISTRY
           value: ${TOOLBOX_IMAGE_REGISTRY}
-
-          
-
 parameters:
 - name: GIT_REPO
-  value: https://github.com/rh-integration/IntegrationApp-Automation.git
+  value: https://github.com/myeung18/IntegrationApp-Automation.git
   required: true
 - name: GIT_BRANCH
-  value: master
+  value: ocp4test 
   required: true
 - name: PRIVATE_BASE_URL
   value:
@@ -112,28 +109,4 @@ parameters:
 - name: PLAN_YAML_FILE_PATH
   value: https://raw.githubusercontent.com/rh-integration/IntegrationApp-Automation/master/cicd-3scale/3scaletoolbox/plan.yaml
 - name: TOOLBOX_IMAGE_REGISTRY
-  value: docker-registry.default.svc:5000/rh-dev/toolbox:v0.12.4
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  value: image-registry.openshift-image-registry.svc:5000/ms-dev/toolbox:v0.12.4

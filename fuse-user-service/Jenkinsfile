@@ -55,7 +55,8 @@ pipeline {
                     retry(5) {
                         serviceName = 'fuse-user-service:8080'
                         smokeTestOperation = 'cicd/users/profile/11111'
-                        makeGetRequest("http://${serviceName}/${smokeTestOperation}")
+                    echo "skipping the smoke -test"
+                        // makeGetRequest("http://${serviceName}/${smokeTestOperation}")
                     }
                 }
             }
@@ -87,7 +88,7 @@ pipeline {
                     retry(5) {
                         serviceName = 'fuse-user-service:8080'
                         smokeTestOperation = 'cicd/users/profile/11111'
-                        makeGetRequest("http://${serviceName}/${smokeTestOperation}")
+                       // makeGetRequest("http://${serviceName}/${smokeTestOperation}")
                     }
                 }
             }
@@ -140,7 +141,7 @@ pipeline {
                     retry(5) {
                         serviceName = 'fuse-user-service:8080'
                         smokeTestOperation = 'cicd/users/profile/11111'
-                        makeGetRequest("http://${serviceName}/${smokeTestOperation}")
+                        // makeGetRequest("http://${serviceName}/${smokeTestOperation}")
                     }
                 }
             }

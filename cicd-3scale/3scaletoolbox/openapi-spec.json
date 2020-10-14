@@ -38,7 +38,7 @@
   "securityDefinitions" : {
     "apikey" : {
       "type" : "apiKey",
-      "description" : "Use a 3scale API Key",
+      "description" : "api key",
       "name" : "api-key",
       "in" : "query"
     }
@@ -47,7 +47,7 @@
     "apikey" : [ ]
   } ],
 
-  "host": "echo-api.3scale.net",
+  "host": "maingateway-service-ms-dev.apps.mw-ocp4.cloud.lab.eng.bos.redhat.com",
   "basePath": "/cicd",
   "schemes": [
     "http"
