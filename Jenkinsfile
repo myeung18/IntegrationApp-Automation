@@ -15,7 +15,7 @@ pipeline {
     parameters {
         string(defaultValue: 'notinuse', name: 'OPENSHIFT_HOST', description: 'open shift cluster url')
         string(defaultValue: 'notinuse', name: 'OPENSHIFT_TOKEN', description: 'open shift token')
-        string(defaultValue: 'docker-registry.default.svc:5000', name: 'IMAGE_REGISTRY', description: 'open shift token')
+        string(defaultValue: 'image-registry.openshift-image-registry.svc:5000', name: 'IMAGE_REGISTRY', description: 'open shift token')
         string(defaultValue: 'rh-dev', name: 'IMAGE_NAMESPACE', description: 'name space where image deployed')
         string(defaultValue: 'all', name: 'DEPLOY_MODULE', description: 'target module to work on')
         string(defaultValue: 'rh-dev', name: 'DEV_PROJECT', description: 'build or development project')
