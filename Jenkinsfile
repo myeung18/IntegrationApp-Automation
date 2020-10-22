@@ -685,7 +685,7 @@ def deploy(folderName, projName, openShiftHost, openShiftToken, mysqlUser, mysql
 
 def makePostRequest(url, body, method) {
 
-    sh """set -e +x
+    sh """set -e -x
 
     curl -X POST   ${url} \
     -H 'cache-control: no-cache' \
@@ -700,7 +700,7 @@ def makePostRequest(url, body, method) {
 def makeGetRequest(url) {
 
 
-    sh """set -e +x
+    sh """set -e -x
                           curl -k -f -w "SmokeTest: %{http_code}\n" -o /dev/null -s ${url}
     """
 }

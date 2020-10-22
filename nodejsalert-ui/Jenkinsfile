@@ -321,7 +321,7 @@ def promoteService(imageNamespace, projName, dcName) {
 
 def makeGetRequest(url) {
 
-    sh """set -e +x
+    sh """set -e -x
           curl -k -f -w "SmokeTest: %{http_code}\n" -o /dev/null -s ${url}
         """
 
